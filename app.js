@@ -9,16 +9,15 @@ const morgan = require('morgan');
 //connect to DB
 const connectDB = require('./db/connect');
 
+const authRouter = require('./routes/authRoutes');
+
 const notFoundMiddleware = require('./middlewares/not-found');
 const errorHandlerMiddleware = require('./middlewares/error-handler');
 
 app.use(express.json());
 app.use(morgan('tiny'));
 
-app.get('/', (req, res) => {
-  res.send('<h1>Jobster website</h1>');
-});
-
+app.use('/api/v1/auth', authRouter);
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
