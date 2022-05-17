@@ -1,9 +1,10 @@
 const { StatusCodes } = require('http-status-codes');
 const User = require('../models/user');
-const { BadRequestError } = require('../errors');
+const { BadRequestError, UnAuthenticatedError } = require('../errors');
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
+
   if (!name || !email || !password) {
     throw new BadRequestError('Please provide all values');
   }
@@ -25,16 +26,52 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  throw new BadRequestError('BR');
-  res.send('login');
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    throw new BadRequestError('Please provide all values');
+  }
+
+  const user = await User.findOne({ email }).select('+password');
+
+  if (!user) {
+    throw new UnAuthenticatedError('Invalid credentials');
+  }
+
+  const isPasswordCorrect = await user.comparePassword(password);
+
+  if (!isPasswordCorrect) {
+    throw new UnAuthenticatedError('Invalid credentials');
+  }
+
+  const token = user.createJWT();
+
+  res.status(StatusCodes.OK).json({
+    user: { name: user.name, email: user.email, location: user.location },
+    token,
+  });
 };
 
-const logout = async (req, res) => {
-  res.send('logout');
-};
+// const updateUser = async (req, res) => {
+//   const { name, email, location } = req.body;
+
+//   if (!name || !email || !location) {
+//     throw new BadRequestError('Please provide all values');
+//   }
+
+//   const user = await User.findOneAndUpdate(
+//     { _id: req.user.userId },
+//     { name, email, location },
+//     { new: true, runValidators: true }
+//   );
+
+//   res.status(StatusCodes.OK).json({
+//     user: { name: user.name, email: user.email, location: user.location },
+//   });
+// };
 
 module.exports = {
   register,
   login,
-  logout,
+  // updateUser,
 };
