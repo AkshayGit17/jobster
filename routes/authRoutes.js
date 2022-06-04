@@ -4,11 +4,13 @@ const router = express.Router();
 const {
   register,
   login,
-  //   updateUser,
+  updateUser,
 } = require('../controllers/authController');
+
+const authMiddleware = require('../middlewares/auth');
 
 router.post('/register', register);
 router.post('/login', login);
-// router.get('/updateUser', updateUser);
+router.patch('/updateUser', authMiddleware, updateUser);
 
 module.exports = router;

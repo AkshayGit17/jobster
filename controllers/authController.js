@@ -20,8 +20,12 @@ const register = async (req, res) => {
   const token = user.createJWT();
 
   res.status(StatusCodes.CREATED).json({
-    user: { name: user.name, email: user.email, location: user.location },
-    token,
+    user: {
+      name: user.name,
+      email: user.email,
+      location: user.location,
+      token,
+    },
   });
 };
 
@@ -47,31 +51,42 @@ const login = async (req, res) => {
   const token = user.createJWT();
 
   res.status(StatusCodes.OK).json({
-    user: { name: user.name, email: user.email, location: user.location },
-    token,
+    user: {
+      name: user.name,
+      email: user.email,
+      location: user.location,
+      token,
+    },
   });
 };
 
-// const updateUser = async (req, res) => {
-//   const { name, email, location } = req.body;
+const updateUser = async (req, res) => {
+  const { name, email, location } = req.body;
+  console.log(name, email, location);
+  if (!name || !email || !location) {
+    throw new BadRequestError('Please provide all values');
+  }
 
-//   if (!name || !email || !location) {
-//     throw new BadRequestError('Please provide all values');
-//   }
+  const user = await User.findOneAndUpdate(
+    { _id: req.user.userId },
+    { name, email, location },
+    { new: true, runValidators: true }
+  );
 
-//   const user = await User.findOneAndUpdate(
-//     { _id: req.user.userId },
-//     { name, email, location },
-//     { new: true, runValidators: true }
-//   );
+  const token = user.createJWT();
 
-//   res.status(StatusCodes.OK).json({
-//     user: { name: user.name, email: user.email, location: user.location },
-//   });
-// };
+  res.status(StatusCodes.OK).json({
+    user: {
+      name: user.name,
+      email: user.email,
+      location: user.location,
+      token,
+    },
+  });
+};
 
 module.exports = {
   register,
   login,
-  // updateUser,
+  updateUser,
 };
