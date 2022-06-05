@@ -10,7 +10,9 @@ const cors = require('cors');
 const connectDB = require('./db/connect');
 
 const authRouter = require('./routes/authRoutes');
+const jobRouter = require('./routes/jobRoutes');
 
+const authMiddleware = require('./middlewares/auth');
 const notFoundMiddleware = require('./middlewares/not-found');
 const errorHandlerMiddleware = require('./middlewares/error-handler');
 
@@ -19,6 +21,7 @@ app.use(morgan('tiny'));
 app.use(cors());
 
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/jobs', authMiddleware, jobRouter);
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
